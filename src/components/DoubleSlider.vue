@@ -37,12 +37,10 @@ export default {
   },
   methods: {
     change: function () {
-      console.log("change", this.value);
-      this.$emit("filtering", this.value);
+      this.$emit("filtering", { title: this.title, value: this.value });
     },
     reset: function () {
       this.value = this.initialValue;
-      console.log("RESET SLIDER", this.value);
     },
   },
 };

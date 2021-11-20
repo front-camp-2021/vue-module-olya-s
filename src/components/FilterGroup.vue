@@ -43,12 +43,13 @@ export default {
   },
   methods: {
     change: function () {
-      console.log("change", this.checkedNames, this.title);
-      this.$emit("filtering", this.checkedNames);
+      this.$emit("filtering", {
+        title: this.title,
+        value: this.checkedNames,
+      });
     },
     reset: function () {
       this.checkedNames = [];
-      console.log("RESET FILTER", this.checkedNames);
     },
   },
 };

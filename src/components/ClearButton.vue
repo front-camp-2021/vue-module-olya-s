@@ -13,7 +13,7 @@ export default {
   props: { content: { type: String, default: "" } },
   methods: {
     onClick: function () {
-      this.$emit("click");
+      this.$emit("clear");
     },
   },
 };

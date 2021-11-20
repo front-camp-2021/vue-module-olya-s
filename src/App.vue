@@ -1,17 +1,13 @@
 <template>
   <div id="app">
-    <!--<HelloWorld msg="Welcome to Your Vue.js App"/>-->
-    <main-header :purchase-count="0" />
+    <main-header :purchase-count="purchaseCount" />
     <breadcrumbs />
     <main-container
       :price="price"
       :categories="categories"
       :brands="brands"
       :products="products"
-    />
-    <pagination
-      :page-size="10"
-      :total-pages="10"
+      @cart="setCart"
     />
   </div>
 </template>
@@ -19,9 +15,6 @@
 <script>
 import MainHeader from "./components/MainHeader.vue";
 import Breadcrumbs from "./components/Breadcrumbs.vue";
-// import FiltersList from "./components/FiltersList.vue";
-// import CardsList from "./components/CardsList.vue";
-import Pagination from "./components/Pagination.vue";
 import MainContainer from "./components/MainContainer.vue";
 
 const products = [
@@ -295,11 +288,20 @@ export default {
     MainHeader,
     Breadcrumbs,
     MainContainer,
-    Pagination,
   },
   data() {
-    console.log(products);
-    return { products, price, categories, brands };
+    return {
+      products,
+      price,
+      categories,
+      brands,
+      purchaseCount: 0,
+    };
+  },
+  methods: {
+    setCart: function (data) {
+      this.purchaseCount = data;
+    },
   },
 };
 </script>

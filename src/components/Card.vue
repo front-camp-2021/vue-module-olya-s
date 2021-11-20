@@ -26,7 +26,7 @@
     <div class="card__footer">
       <button
         class="card__button card__button_wishlist"
-        @click="addToWishlist()"
+        @click="setWishlist"
       >
         <img
           :src="wishlistIcon"
@@ -36,7 +36,7 @@
       </button>
       <button
         class="card__button card__button_cart"
-        @click="addToCart()"
+        @click="setCart"
       >
         <img
           src="../assets/images/shopping-bag.svg"
@@ -56,19 +56,19 @@ export default {
   },
 
   data: function () {
-    let { id, title, rating, price, inWishlist, quantity } = this.product;
-    return { id, title, rating, price, inWishlist, quantity };
+    let { id, title, rating, price } = this.product;
+    return { id, title, rating, price, inWishlist: false, quantity: 0 };
   },
 
   computed: {
-    wishlistIcon() {
+    wishlistIcon: function () {
       if (!this.inWishlist) {
         return require("../assets/images/heart.svg");
       } else {
         return require(`../assets/images/heart_2.svg`);
       }
     },
-    quantityCounter() {
+    quantityCounter: function () {
       if (this.quantity) {
         return ` (${this.quantity})`;
       }
@@ -80,11 +80,13 @@ export default {
     goTo: function () {
       console.log("GOTO");
     },
-    addToWishlist: function () {
+    setWishlist: function () {
       this.inWishlist = !this.inWishlist;
+      this.$emit("wishlist", this.id);
     },
-    addToCart: function () {
+    setCart: function () {
       this.quantity++;
+      this.$emit("cart", this.id);
     },
   },
 };

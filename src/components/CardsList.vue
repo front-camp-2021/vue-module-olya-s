@@ -1,8 +1,10 @@
 <template>
   <div>
     <search
-      :wishful-products="[]"
-      :results="results"
+      :trigger="trigger"
+      :wishful-products="wishfulProductsNumber"
+      :results="productsCount"
+      @filtering="setFilter"
     />
     <section>
       <h2 class="visually-hidden">
@@ -14,6 +16,8 @@
             v-for="product of products"
             :key="product.id"
             :product="product"
+            @wishlist="setWishlist"
+            @cart="setCart"
           />
         </div>
       </div>
@@ -32,11 +36,24 @@ export default {
   name: "CardList",
   components: { Search, Card },
   props: {
+    trigger: Boolean,
     products: { type: Array, default: () => [] },
+    productsCount: { type: Number, default: 0 },
   },
   computed: {
-    results() {
-      return this.products.length;
+    wishfulProductsNumber() {
+      return this.products.filter((product) => product.inWishlist).length;
+    },
+  },
+  methods: {
+    setWishlist: function (data) {
+      this.$emit("wishlist", data);
+    },
+    setCart: function (data) {
+      this.$emit("cart", data);
+    },
+    setFilter: function (data) {
+      this.$emit("filtering", data);
     },
   },
 };

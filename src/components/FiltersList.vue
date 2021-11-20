@@ -68,13 +68,10 @@ export default {
   methods: {
     clearAllFilters: function () {
       this.trigger = !this.trigger;
-      console.log("CLEAR", this.trigger);
-      // this.filtering.resetFilters();
-      // this.slider.reset();
-      // this.filters.forEach((filter) => filter.reset());
+      this.$emit("filtering");
     },
-    setFilter: function (value) {
-      console.log("SETFILTER", value);
+    setFilter: function (data) {
+      this.$emit("filtering", data);
     },
   },
 };

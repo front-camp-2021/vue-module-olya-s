@@ -51,7 +51,7 @@
 export default {
   name: "Pagination",
   props: {
-    pageSize: { type: Number, default: 20 },
+    pageSize: { type: Number, default: 6 },
     totalPages: { type: Number, default: 0 },
   },
   data: function () {
@@ -200,6 +200,7 @@ export default {
           this.currentPage = +event.target.closest("li").dataset.index;
         }
       }
+      this.$emit("changePage", this.currentPage);
     },
   },
 };

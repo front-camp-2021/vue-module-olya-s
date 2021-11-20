@@ -42,27 +42,38 @@ const debounce = (callback) => {
 export default {
   name: "Search",
   props: {
-    wishfulProducts: { type: Array, default: () => {} },
+    trigger: Boolean,
+    wishfulProducts: { type: Number, default: 0 },
     results: { type: Number, default: 0 },
   },
   data: function () {
     return {
       value: "",
-      setSearch: debounce(() => console.log("search", this.value)),
+      setSearch: debounce(() => {
+        this.$emit("filtering", { title: "Search", value: this.value });
+      }),
     };
   },
   computed: {
     wishlistIcon() {
-      if (!this.wishfulProducts.length) {
+      if (!this.wishfulProducts) {
         return require("../assets/images/like.svg");
       } else {
         return require("../assets/images/like_2.svg");
       }
     },
   },
+  watch: {
+    trigger: function () {
+      this.reset();
+    },
+  },
   methods: {
     debouncedOnInput() {
       this.setSearch(null);
+    },
+    reset() {
+      this.value = "";
     },
   },
 };
