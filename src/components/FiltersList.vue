@@ -9,53 +9,57 @@
         &lt;&lt;
       </button>
     </h3>
-    <div class="filter-form__list-wrapper">
-      <div class="filters">
-        <div v-if="price">
-          <double-slider
-            :price="price"
-            :title="'Price'"
-            :trigger="trigger"
-            @filtering="setFilter"
-          />
-        </div>
-        <hr>
-        <div v-if="categories">
-          <filter-group
-            :filters="categories"
-            :title="'Category'"
-            :trigger="trigger"
-            @filtering="setFilter"
-          />
-        </div>
-        <hr>
-        <div v-if="brands">
-          <filter-group
-            :filters="brands"
-            :title="'Brand'"
-            :trigger="trigger"
-            @filtering="setFilter"
-          />
+    <div v-if="(price && price.selected) || categories.length || brands.length">
+      <div class="filter-form__list-wrapper">
+        <div class="filters">
+          <div v-if="price.selected">
+            <double-slider
+              :price="price"
+              :title="'Price'"
+              :trigger="trigger"
+              @filtering="setFilter"
+            />
+          </div>
+          <hr>
+          <div v-if="categories.length">
+            <filter-group
+              :filters="categories"
+              :title="'Category'"
+              :trigger="trigger"
+              @filtering="setFilter"
+            />
+          </div>
+          <hr>
+          <div v-if="brands.length">
+            <filter-group
+              :filters="brands"
+              :title="'Brand'"
+              :trigger="trigger"
+              @filtering="setFilter"
+            />
+          </div>
         </div>
       </div>
-      <div v-if="!(price || categories || brands)">
-        No Filters to show
-      </div>
+      <clear-button
+        :content="content"
+        @click="clearAllFilters"
+      />
     </div>
-    <clear-button
-      :content="content"
-      @click="clearAllFilters"
-    />
+    <div
+      v-if="!((price && price.selected) || categories.length || brands.length)"
+    >
+      No filters to show
+    </div>
   </div>
 </template>
 
 <script>
-import ClearButton from "./ClearButton.vue";
-import DoubleSlider from "./DoubleSlider.vue";
-import FilterGroup from "./FilterGroup.vue";
+import ClearButton from './ClearButton.vue';
+import DoubleSlider from './DoubleSlider.vue';
+import FilterGroup from './FilterGroup.vue';
 
 export default {
-  name: "FiltersList",
+  name: 'FiltersList',
   components: { DoubleSlider, FilterGroup, ClearButton },
   props: {
     price: { type: Object, default: () => {} },
@@ -68,18 +72,18 @@ export default {
   methods: {
     clearAllFilters: function () {
       this.trigger = !this.trigger;
-      this.$emit("filtering");
+      this.$emit('filtering');
     },
     setFilter: function (data) {
-      this.$emit("filtering", data);
+      this.$emit('filtering', data);
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/styles/vars";
-@import "../assets/styles/mixins";
+@import '../assets/styles/vars';
+@import '../assets/styles/mixins';
 
 .filter-form {
   display: none;

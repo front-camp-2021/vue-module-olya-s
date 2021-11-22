@@ -1,7 +1,6 @@
 <template>
   <button
     class="filter-form__clear-button"
-    @click="onClick"
   >
     {{ content }}
   </button>
@@ -9,19 +8,14 @@
 
 <script>
 export default {
-  name: "ClearButton",
-  props: { content: { type: String, default: "" } },
-  methods: {
-    onClick: function () {
-      this.$emit("clear");
-    },
-  },
+  name: 'ClearButton',
+  props: { content: { type: String, default: '' } },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/styles/vars";
-@import "../assets/styles/mixins";
+@import '../assets/styles/vars';
+@import '../assets/styles/mixins';
 
 .filter-form__clear-button {
   width: 100%;

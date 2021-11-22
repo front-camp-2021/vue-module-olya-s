@@ -25,28 +25,29 @@
 </template>
 
 <script>
-import CardsList from "./CardsList.vue";
-import FiltersList from "./FiltersList.vue";
-import Pagination from "./Pagination.vue";
+import axios from 'axios';
+import CardsList from './CardsList.vue';
+import FiltersList from './FiltersList.vue';
+import Pagination from './Pagination.vue';
 
 export default {
-  name: "MainContainer",
+  name: 'MainContainer',
   components: { FiltersList, CardsList, Pagination },
-  props: {
-    price: { type: Object, default: () => {} },
-    categories: { type: Array, default: () => [] },
-    brands: { type: Array, default: () => [] },
-    products: { type: Array, default: () => [] },
-  },
   data() {
     return {
-      allProducts: this.products.map((product) => ({
-        ...product,
-        inWishlist: false,
-        quantity: 0,
-      })),
+      products: [],
+      price: {},
+      categories: [],
+      brands: [],
+      allProducts:
+        this.products &&
+        this.products.map((product) => ({
+          ...product,
+          inWishlist: false,
+          quantity: 0,
+        })),
       trigger: false,
-      search: "",
+      search: '',
       filteredPrice: {},
       checkedCategories: [],
       checkedBrands: [],
@@ -59,12 +60,15 @@ export default {
       return this.getFilteredProducts();
     },
     productsToView: function () {
-      return this.filteredProducts
-        .slice()
-        .splice(
-          this.currentPage * this.pageSize - this.pageSize,
-          this.pageSize
-        );
+      return (
+        this.filteredProducts &&
+        this.filteredProducts
+          .slice()
+          .splice(
+            this.currentPage * this.pageSize - this.pageSize,
+            this.pageSize
+          )
+      );
     },
     productsCount: function () {
       return this.filteredProducts.length;
@@ -72,6 +76,24 @@ export default {
     totalPages: function () {
       return Math.ceil(this.filteredProducts.length / this.pageSize);
     },
+  },
+  mounted() {
+    try {
+      axios
+        .get('http://localhost:3001/products')
+        .then((res) => (this.allProducts = res.data));
+      axios
+        .get('http://localhost:3001/price')
+        .then((res) => (this.price = res.data));
+      axios
+        .get('http://localhost:3001/categories')
+        .then((res) => (this.categories = res.data));
+      axios
+        .get('http://localhost:3001/brands')
+        .then((res) => (this.brands = res.data));
+    } catch (e) {
+      throw new Error(e);
+    }
   },
   methods: {
     setWishlist: function (data) {
@@ -84,32 +106,35 @@ export default {
         (sum, product) => product.quantity + sum,
         0
       );
-      this.$emit("cart", purchaseCount);
+      this.$emit('cart', purchaseCount);
     },
     setFilters: function (data) {
       if (!data) {
         this.trigger = !this.trigger;
-        this.search = "";
+        this.search = '';
         this.filteredPrice = {};
         this.checkedCategories = [];
         this.checkedBrands = [];
         return;
       }
       const { title, value } = data;
-      if (title === "Search") {
+      if (title === 'Search') {
         this.search = value;
       }
-      if (title === "Price") {
+      if (title === 'Price') {
         this.filteredPrice = value;
       }
-      if (title === "Category") {
+      if (title === 'Category') {
         this.checkedCategories = value;
       }
-      if (title === "Brand") {
+      if (title === 'Brand') {
         this.checkedBrands = value;
       }
     },
     getFilteredProducts: function () {
+      if (!this.allProducts) {
+        return [];
+      }
       const products = this.allProducts;
       let result = [];
       let categoryProducts = [];
@@ -122,14 +147,14 @@ export default {
           categoryProducts = products.filter((prod) =>
             this.checkedCategories.find(
               (title) =>
-                title.toLowerCase() === prod.category.split("_").join(" ")
+                title.toLowerCase() === prod.category.split('_').join(' ')
             )
           );
         }
         if (this.checkedBrands.length) {
           brandProducts = products.filter((prod) =>
             this.checkedBrands.find(
-              (title) => title.toLowerCase() === prod.brand.split("_").join(" ")
+              (title) => title.toLowerCase() === prod.brand.split('_').join(' ')
             )
           );
         }
