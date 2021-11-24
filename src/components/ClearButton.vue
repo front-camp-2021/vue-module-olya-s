@@ -1,5 +1,8 @@
 <template>
-  <button class="filter-form__clear-button">
+  <button
+    class="filter-form__clear-button"
+    @click="onClick"
+  >
     {{ content }}
   </button>
 </template>
@@ -10,6 +13,13 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "ClearButton",
   props: { content: { type: String, default: "" } },
+  emits: ["clear"],
+  setup(props, { emit }) {
+    function onClick() {
+      emit("clear");
+    }
+    return { onClick };
+  },
 });
 </script>
 

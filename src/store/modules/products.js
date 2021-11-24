@@ -25,8 +25,23 @@ export default {
         : product
       )      
     },
+    updateCartlist(state, payload){
+      state.products=state.products.map(product=>
+        product.id === payload.id
+        ? { ...product, quantity: product.quantity + payload.data }
+        : product
+        );
+    },
     updateProductsCount(state, value){
       state.productsCount = value;
+    },
+    clearWishlist(state){
+      state.products = state.products.map(product =>
+        ({ ...product, inWishlist: false }));
+    },
+    clearCart(state){
+      state.products = state.products.map(product =>
+        ({ ...product, quantity: 0 }));
     }
   },
   actions: {
@@ -36,8 +51,17 @@ export default {
 
       ctx.commit('updateProducts', products);
     },
+    actionUpdateCartlist(ctx, payload){
+      ctx.commit('updateCartlist', payload);
+    },
     actionUpdateProductsCount(ctx, payload){
       ctx.commit('updateProductsCount', payload);
+    },
+    actionClearWishlist(ctx){
+      ctx.commit('clearWishlist');
+    },
+    actionClearCart(ctx){
+      ctx.commit('clearCart');
     }
   },
   getters: {

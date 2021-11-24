@@ -42,7 +42,7 @@ export default defineComponent({
     const allProducts = store.getters.allProducts;
 
     function change() {
-      store.dispatch("updateFilters", {
+      store.dispatch("actionUpdateFilters", {
         title: props.title,
         value: checkedNames,
         products: allProducts,

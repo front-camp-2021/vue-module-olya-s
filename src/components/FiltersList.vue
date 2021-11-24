@@ -68,7 +68,7 @@ export default defineComponent({
     const content = "Clear all filters";
 
     function clearAllFilters() {
-      store.dispatch("updateFilters");
+      store.dispatch("actionUpdateFilters");
     }
     return { price, categories, brands, content, clearAllFilters };
   },

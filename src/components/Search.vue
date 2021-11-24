@@ -2,14 +2,14 @@
   <form class="search">
     <div class="search__results">
       <p>{{ results }} results found</p>
-      <!-- <a routerLink="/wishlist"> -->
-      <button class="search__button-like">
-        <img
-          :src="wishlistIcon"
-          alt="see wishlist"
-        >
-      </button>
-      <!-- </a> -->
+      <router-link to="/wishlist">
+        <button class="search__button-like">
+          <img
+            :src="wishlistIcon"
+            alt="see wishlist"
+          >
+        </button>
+      </router-link>
     </div>
     <label
       for="search-input"
@@ -52,7 +52,7 @@ export default defineComponent({
 
     const value = ref("");
     const setSearch = debounce(() => {
-      store.commit("setFilters", { title: "Search", value });
+      store.dispatch("actionUpdateFilters", { title: "Search", value });
     });
     const wishlistIcon = computed(() => {
       if (!store.getters.wishlistCount) {

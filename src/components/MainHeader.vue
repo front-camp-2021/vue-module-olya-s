@@ -1,16 +1,23 @@
 <template>
   <header class="header">
-    <!-- <a routerLink="/products" class="header__logo-link" (click)="onClick()"> -->
-    <a class="header__logo-link">
+    <router-link
+      to="/"
+      class="header__logo-link"
+      @click="resetFilters"
+    >
       <img
         class="header__image"
         src="../assets/images/logo.svg"
         alt="shop logo"
       >
-      <h1 class="header__title">Online Store</h1>
-    </a>
-    <!-- <a routerLink="/cart" class="header__cart-image"> -->
-    <a class="header__cart-image">
+      <h1 class="header__title">
+        Online Store
+      </h1>
+    </router-link>
+    <router-link
+      to="/cart"
+      class="header__cart-image"
+    >
       <div
         v-if="purchaseCount"
         class="header__purchase-count"
@@ -21,7 +28,7 @@
         src="../assets/images/shopping-cart.svg"
         alt="add to cart"
       >
-    </a>
+    </router-link>
   </header>
 </template>
 
@@ -34,7 +41,12 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const purchaseCount = computed(() => store.getters.purchaseCount);
-    return { purchaseCount };
+
+    function resetFilters() {
+      store.dispatch("actionUpdateFilters");
+    }
+
+    return { purchaseCount, resetFilters };
   },
 });
 </script>

@@ -31,7 +31,7 @@ export default defineComponent({
     const value = ref([props.price.min, props.price.max]);
 
     function change() {
-      store.dispatch("updateFilters", { title: props.title, value });
+      store.dispatch("actionUpdateFilters", { title: props.title, value });
     }
     return {
       minValue,

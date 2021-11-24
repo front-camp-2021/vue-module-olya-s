@@ -36,11 +36,6 @@ export default defineComponent({
     const productsToShow = computed(() => getProductsToShow());
     const productsCount = computed(() => filteredProducts.value.length);
 
-    store.dispatch("actionGetProducts");
-    store.dispatch("actionGetPrice");
-    store.dispatch("actionGetCategories");
-    store.dispatch("actionGetBrands");
-
     watch([currentPage], filteringProducts);
 
     function filteringProducts() {

@@ -51,6 +51,7 @@
 <script>
 import { useStore } from "vuex";
 import { defineComponent, computed } from "vue";
+import router from "../router";
 
 export default defineComponent({
   name: "Card",
@@ -78,7 +79,7 @@ export default defineComponent({
     });
 
     function goTo() {
-      console.log("GOTO");
+      router.push(`/product/${id}`);
     }
     function updateWishlist() {
       store.commit("updateWishlist", id);

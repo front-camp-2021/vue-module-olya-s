@@ -20,7 +20,7 @@ export default {
     updateBrands(state, brands) {
       state.brands = brands;
     },
-    setFilters(state, data) {
+    updateFilters(state, data) {
       if (!data) {
         state.searchFilter = '';
         state.filteredPrice = [state.price.selected.from, state.price.selected.to];
@@ -77,8 +77,8 @@ export default {
         console.error(e);
       }
     },
-    updateFilters(ctx, payload) {
-      ctx.commit('setFilters', payload);
+    actionUpdateFilters(ctx, payload) {
+      ctx.commit('updateFilters', payload);
       ctx.commit('changePage', 1);
     },
   },
