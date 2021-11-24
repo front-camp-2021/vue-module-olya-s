@@ -13,37 +13,34 @@
 
 <script>
 import Slider from "@vueform/slider";
-export default {
+import { defineComponent, computed, reactive, ref } from "vue";
+import { useStore } from "vuex";
+
+export default defineComponent({
   name: "DoubleSlider",
   components: { Slider },
   props: {
     price: { type: Object, default: () => {} },
     title: { type: String, default: "" },
-    trigger: Boolean,
   },
-  data: function () {
+  setup(props) {
+    const store = useStore();
+
+    const minValue = props.price.selected.from;
+    const maxValue = props.price.selected.to;
+    const value = ref([props.price.min, props.price.max]);
+
+    function change() {
+      store.dispatch("updateFilters", { title: props.title, value });
+    }
     return {
-      prices: this.price,
-      minValue: this.price.selected.from,
-      maxValue: this.price.selected.to,
-      value: [this.price.min, this.price.max],
-      initialValue: [this.price.min, this.price.max],
+      minValue,
+      maxValue,
+      value,
+      change,
     };
   },
-  watch: {
-    trigger: function () {
-      this.reset();
-    },
-  },
-  methods: {
-    change: function () {
-      this.$emit("filtering", { title: this.title, value: this.value });
-    },
-    reset: function () {
-      this.value = this.initialValue;
-    },
-  },
-};
+});
 </script>
 
 <style lang="scss" scoped>

@@ -1,15 +1,18 @@
 <template>
   <div id="app">
+    {{ Hello }}
     <main-header :purchase-count="purchaseCount" />
     <breadcrumbs />
     <main-container @cart="setCart" />
+    <pagination />
   </div>
 </template>
 
 <script>
-import MainHeader from './components/MainHeader.vue';
-import Breadcrumbs from './components/Breadcrumbs.vue';
-import MainContainer from './components/MainContainer.vue';
+import MainHeader from "./components/MainHeader.vue";
+import Breadcrumbs from "./components/Breadcrumbs.vue";
+import MainContainer from "./components/MainContainer.vue";
+import Pagination from "./components/Pagination.vue";
 
 // const products = [
 //   {
@@ -167,11 +170,12 @@ import MainContainer from './components/MainContainer.vue';
 // ];
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     MainHeader,
     Breadcrumbs,
     MainContainer,
+    Pagination,
   },
   data() {
     return {
@@ -187,7 +191,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import './assets/styles/vars';
-@import './assets/styles/mixins';
-@import './assets/styles/main';
+@import "./assets/styles/vars";
+@import "./assets/styles/mixins";
+@import "./assets/styles/main";
 </style>

@@ -10,7 +10,7 @@
     >
       {{ prevPage }}
       <button
-        v-if="currentPage !== 1"
+        v-if="current !== 1"
         class="pagination__link pagination__link_arrow"
       >
         &lt;
@@ -38,7 +38,7 @@
     >
       {{ nextPage }}
       <button
-        v-if="currentPage !== totalPages"
+        v-if="current !== total"
         class="pagination__link pagination__link_arrow"
       >
         &gt;
@@ -48,34 +48,36 @@
 </template>
 
 <script>
-export default {
+import { defineComponent, computed } from "vue";
+import { useStore } from "vuex";
+
+export default defineComponent({
   name: "Pagination",
-  props: {
-    pageSize: { type: Number, default: 6 },
-    totalPages: { type: Number, default: 0 },
-  },
-  data: function () {
-    return {
-      start: 1,
-      viewPages: 9,
-      currentPage: 1,
-    };
-  },
-  computed: {
-    prevPage: function () {
-      return this.currentPage === 1 ? "<" : "";
-    },
-    nextPage: function () {
-      return this.currentPage === this.totalPages ? ">" : "";
-    },
-    pages: function () {
+  setup() {
+    const store = useStore();
+
+    const start = 1;
+    const viewPages = store.getters.viewPages;
+    const current = computed(() => store.getters.currentPage);
+    const total = computed(() => store.getters.totalPages);
+    const prevPage = computed(() => {
+      return current.value === 1 ? "<" : "";
+    });
+    const nextPage = computed(() => {
+      return current.value === total.value ? ">" : "";
+    });
+    const pages = computed(() => getPages());
+
+    function getPages() {
       let pages = [];
-      if (this.totalPages <= 1) {
+      const currentPage = current.value;
+      const totalPages = total.value;
+      if (totalPages <= 1) {
         return [];
       }
-      if (this.totalPages <= this.viewPages) {
-        for (let i = 1; i <= this.totalPages; i++) {
-          if (this.currentPage === i) {
+      if (totalPages <= viewPages) {
+        for (let i = 1; i <= totalPages; i++) {
+          if (currentPage === i) {
             pages[i] = {
               class: "pagination__item pagination__item_current",
               dataIndex: i,
@@ -91,9 +93,9 @@ export default {
         }
         return pages.filter((page) => page);
       }
-      if (this.currentPage < this.start + 5) {
-        for (let i = this.start; i < this.viewPages - 1; i++) {
-          if (this.currentPage === i) {
+      if (currentPage < start + 5) {
+        for (let i = start; i < viewPages - 1; i++) {
+          if (currentPage === i) {
             pages[i] = {
               class: "pagination__item pagination__item_current",
               dataIndex: i,
@@ -107,23 +109,19 @@ export default {
             };
           }
         }
-        pages[this.start + 7] = {
+        pages[start + 7] = {
           class: "pagination__item",
-          dataIndex: this.start + 7,
+          dataIndex: start + 7,
           dataContent: "...",
         };
-        pages[this.viewPages] = {
+        pages[viewPages] = {
           class: "pagination__item",
-          dataIndex: this.totalPages,
+          dataIndex: totalPages,
           dataContent: "button",
         };
-      } else if (this.currentPage > this.totalPages - 5) {
-        for (
-          let i = this.totalPages;
-          i > this.totalPages - this.viewPages + 1;
-          i--
-        ) {
-          if (this.currentPage === i) {
+      } else if (currentPage > totalPages - 5) {
+        for (let i = totalPages; i > totalPages - viewPages + 1; i--) {
+          if (currentPage === i) {
             pages[i] = {
               class: "pagination__item pagination__item_current",
               dataIndex: i,
@@ -137,29 +135,29 @@ export default {
             };
           }
         }
-        pages[this.totalPages - this.viewPages + 2] = {
+        pages[totalPages - viewPages + 2] = {
           class: "pagination__item",
-          dataIndex: this.totalPages - this.viewPages + 2,
+          dataIndex: totalPages - viewPages + 2,
           dataContent: "...",
         };
-        pages[this.start] = {
+        pages[start] = {
           class: "pagination__item",
-          dataIndex: this.start,
+          dataIndex: start,
           dataContent: "button",
         };
       } else {
-        pages[this.start] = {
+        pages[start] = {
           class: "pagination__item",
-          dataIndex: this.start,
+          dataIndex: start,
           dataContent: "button",
         };
-        pages[this.currentPage - 3] = {
+        pages[currentPage - 3] = {
           class: "pagination__item",
-          dataIndex: this.currentPage - 3,
+          dataIndex: currentPage - 3,
           dataContent: "...",
         };
-        for (let i = this.currentPage - 2; i <= this.currentPage + 2; i++) {
-          if (this.currentPage === i) {
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+          if (currentPage === i) {
             pages[i] = {
               class: "pagination__item pagination__item_current",
               dataIndex: i,
@@ -173,37 +171,46 @@ export default {
             };
           }
         }
-        pages[this.totalPages - 1] = {
+        pages[totalPages - 1] = {
           class: "pagination__item",
-          dataIndex: this.totalPages,
+          dataIndex: totalPages,
           dataContent: "button",
         };
-        pages[this.currentPage + 3] = {
+        pages[currentPage + 3] = {
           class: "pagination__item",
-          dataIndex: this.currentPage + 3,
+          dataIndex: currentPage + 3,
           dataContent: "...",
         };
       }
-      // console.log(pages);
       return pages.filter((page) => page);
-    },
-  },
-  methods: {
-    handlePointerDown: function (event) {
+    }
+
+    function handlePointerDown(event) {
+      let currentPage = current.value;
       if (event.target.classList.contains("pagination__link")) {
         if (event.target.parentElement.dataset.element === "prevPage") {
-          this.currentPage--;
+          currentPage = current.value - 1;
         } else if (event.target.parentElement.dataset.element === "nextPage") {
-          this.currentPage++;
+          currentPage = current.value + 1;
         }
         if (event.target.className === "pagination__link") {
-          this.currentPage = +event.target.closest("li").dataset.index;
+          currentPage = +event.target.closest("li").dataset.index;
         }
       }
-      this.$emit("changePage", this.currentPage);
-    },
+
+      store.dispatch("updateCurrentPage", currentPage);
+    }
+
+    return {
+      pages,
+      current,
+      total,
+      prevPage,
+      nextPage,
+      handlePointerDown,
+    };
   },
-};
+});
 </script>
 
 <style lang="scss">

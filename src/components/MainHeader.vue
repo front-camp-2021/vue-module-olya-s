@@ -26,12 +26,17 @@
 </template>
 
 <script>
-export default {
+import { useStore } from "vuex";
+import { defineComponent, computed } from "vue";
+
+export default defineComponent({
   name: "MainHeader",
-  props: {
-    purchaseCount: { type: Number, default: 0 },
+  setup() {
+    const store = useStore();
+    const purchaseCount = computed(() => store.getters.purchaseCount);
+    return { purchaseCount };
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>

@@ -26,33 +26,31 @@
 </template>
 
 <script>
-export default {
+import { defineComponent, ref } from "vue";
+import { useStore } from "vuex";
+
+export default defineComponent({
   name: "FilterGroup",
   props: {
     filters: { type: Array, default: () => {} },
     title: { type: String, default: "" },
-    trigger: Boolean,
   },
-  data: function () {
-    return { checkedNames: [] };
-  },
-  watch: {
-    trigger: function () {
-      this.reset();
-    },
-  },
-  methods: {
-    change: function () {
-      this.$emit("filtering", {
-        title: this.title,
-        value: this.checkedNames,
+  setup(props) {
+    const store = useStore();
+
+    const checkedNames = ref([]);
+    const allProducts = store.getters.allProducts;
+
+    function change() {
+      store.dispatch("updateFilters", {
+        title: props.title,
+        value: checkedNames,
+        products: allProducts,
       });
-    },
-    reset: function () {
-      this.checkedNames = [];
-    },
+    }
+    return { checkedNames, change };
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>

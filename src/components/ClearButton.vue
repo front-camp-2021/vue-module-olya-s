@@ -1,21 +1,21 @@
 <template>
-  <button
-    class="filter-form__clear-button"
-  >
+  <button class="filter-form__clear-button">
     {{ content }}
   </button>
 </template>
 
 <script>
-export default {
-  name: 'ClearButton',
-  props: { content: { type: String, default: '' } },
-};
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  name: "ClearButton",
+  props: { content: { type: String, default: "" } },
+});
 </script>
 
 <style lang="scss" scoped>
-@import '../assets/styles/vars';
-@import '../assets/styles/mixins';
+@import "../assets/styles/vars";
+@import "../assets/styles/mixins";
 
 .filter-form__clear-button {
   width: 100%;

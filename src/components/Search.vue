@@ -32,6 +32,9 @@
 </template>
 
 <script>
+import { defineComponent, computed, ref } from "vue";
+import { useStore } from "vuex";
+
 const debounce = (callback) => {
   let timeout;
   return function (argument) {
@@ -39,44 +42,34 @@ const debounce = (callback) => {
     timeout = setTimeout(callback, 1500, argument);
   };
 };
-export default {
+export default defineComponent({
   name: "Search",
   props: {
     trigger: Boolean,
-    wishfulProducts: { type: Number, default: 0 },
-    results: { type: Number, default: 0 },
   },
-  data: function () {
-    return {
-      value: "",
-      setSearch: debounce(() => {
-        this.$emit("filtering", { title: "Search", value: this.value });
-      }),
-    };
-  },
-  computed: {
-    wishlistIcon() {
-      if (!this.wishfulProducts) {
+  setup() {
+    const store = useStore();
+
+    const value = ref("");
+    const setSearch = debounce(() => {
+      store.commit("setFilters", { title: "Search", value });
+    });
+    const wishlistIcon = computed(() => {
+      if (!store.getters.wishlistCount) {
         return require("../assets/images/like.svg");
       } else {
         return require("../assets/images/like_2.svg");
       }
-    },
+    });
+    const results = computed(() => store.getters.productsCount);
+
+    function debouncedOnInput() {
+      setSearch(null);
+    }
+
+    return { value, wishlistIcon, debouncedOnInput, results };
   },
-  watch: {
-    trigger: function () {
-      this.reset();
-    },
-  },
-  methods: {
-    debouncedOnInput() {
-      this.setSearch(null);
-    },
-    reset() {
-      this.value = "";
-    },
-  },
-};
+});
 </script>
 
 <style lang="scss" scoped>

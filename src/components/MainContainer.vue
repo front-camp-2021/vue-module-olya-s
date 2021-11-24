@@ -1,160 +1,75 @@
 <template>
   <div>
     <div class="container">
-      <filters-list
-        :price="price"
-        :categories="categories"
-        :brands="brands"
-        @filtering="setFilters"
-      />
-      <cards-list
-        :trigger="trigger"
-        :products-count="productsCount"
-        :products="productsToView"
-        @wishlist="setWishlist"
-        @cart="setCart"
-        @filtering="setFilters"
-      />
+      <filters-list />
+      <cards-list :products="filteredProducts" />
     </div>
-    <pagination
-      :page-size="pageSize"
-      :total-pages="totalPages"
-      @changePage="changeCurrentPage"
-    />
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-import CardsList from './CardsList.vue';
-import FiltersList from './FiltersList.vue';
-import Pagination from './Pagination.vue';
+import CardsList from "./CardsList.vue";
+import FiltersList from "./FiltersList.vue";
+import { defineComponent, computed, watch } from "vue";
+import { useStore } from "vuex";
 
-export default {
-  name: 'MainContainer',
-  components: { FiltersList, CardsList, Pagination },
-  data() {
-    return {
-      products: [],
-      price: {},
-      categories: [],
-      brands: [],
-      allProducts:
-        this.products &&
-        this.products.map((product) => ({
-          ...product,
-          inWishlist: false,
-          quantity: 0,
-        })),
-      trigger: false,
-      search: '',
-      filteredPrice: {},
-      checkedCategories: [],
-      checkedBrands: [],
-      currentPage: 1,
-      pageSize: 6,
-    };
+export default defineComponent({
+  name: "MainComponent",
+  components: {
+    FiltersList,
+    CardsList,
   },
-  computed: {
-    filteredProducts: function () {
-      return this.getFilteredProducts();
-    },
-    productsToView: function () {
-      return (
-        this.filteredProducts &&
-        this.filteredProducts
-          .slice()
-          .splice(
-            this.currentPage * this.pageSize - this.pageSize,
-            this.pageSize
-          )
-      );
-    },
-    productsCount: function () {
-      return this.filteredProducts.length;
-    },
-    totalPages: function () {
-      return Math.ceil(this.filteredProducts.length / this.pageSize);
-    },
-  },
-  mounted() {
-    try {
-      axios
-        .get('http://localhost:3001/products')
-        .then((res) => (this.allProducts = res.data));
-      axios
-        .get('http://localhost:3001/price')
-        .then((res) => (this.price = res.data));
-      axios
-        .get('http://localhost:3001/categories')
-        .then((res) => (this.categories = res.data));
-      axios
-        .get('http://localhost:3001/brands')
-        .then((res) => (this.brands = res.data));
-    } catch (e) {
-      throw new Error(e);
-    }
-  },
-  methods: {
-    setWishlist: function (data) {
-      const product = this.allProducts.find((product) => product.id === data);
-      product.inWishlist = !product.inWishlist;
-    },
-    setCart: function (data) {
-      this.allProducts.find((product) => product.id === data).quantity++;
-      const purchaseCount = this.allProducts.reduce(
-        (sum, product) => product.quantity + sum,
-        0
-      );
-      this.$emit('cart', purchaseCount);
-    },
-    setFilters: function (data) {
-      if (!data) {
-        this.trigger = !this.trigger;
-        this.search = '';
-        this.filteredPrice = {};
-        this.checkedCategories = [];
-        this.checkedBrands = [];
-        return;
-      }
-      const { title, value } = data;
-      if (title === 'Search') {
-        this.search = value;
-      }
-      if (title === 'Price') {
-        this.filteredPrice = value;
-      }
-      if (title === 'Category') {
-        this.checkedCategories = value;
-      }
-      if (title === 'Brand') {
-        this.checkedBrands = value;
-      }
-    },
-    getFilteredProducts: function () {
-      if (!this.allProducts) {
+  setup() {
+    const store = useStore();
+
+    const pageSize = store.getters.pageSize;
+    const currentPage = computed(() => store.getters.currentPage);
+    const searchFilter = computed(() => store.getters.searchFilter);
+    const filteredPrice = computed(() => store.getters.filteredPrice);
+    const checkedCategories = computed(() => store.getters.checkedCategories);
+    const checkedBrands = computed(() => store.getters.checkedBrands);
+
+    const allProducts = computed(() => store.getters.allProducts);
+    const wishlistCount = computed(() => store.getters.wishlistCount);
+
+    const filteredProducts = computed(() => filteringProducts());
+    const productsToShow = computed(() => getProductsToShow());
+    const productsCount = computed(() => filteredProducts.value.length);
+
+    store.dispatch("actionGetProducts");
+    store.dispatch("actionGetPrice");
+    store.dispatch("actionGetCategories");
+    store.dispatch("actionGetBrands");
+
+    watch([currentPage], filteringProducts);
+
+    function filteringProducts() {
+      const products = allProducts.value;
+      const price = filteredPrice.value;
+      const category = checkedCategories.value;
+      const brand = checkedBrands.value;
+      const search = searchFilter.value;
+      if (!allProducts) {
         return [];
       }
-      const products = this.allProducts;
-      let result = [];
       let categoryProducts = [];
       let brandProducts = [];
       let filteredProducts = [];
-      if (!this.checkedCategories.length && !this.checkedBrands.length) {
+      if (!category.length && !brand.length) {
         filteredProducts = products.slice();
       } else {
-        if (this.checkedCategories.length) {
+        if (category.length) {
           categoryProducts = products.filter((prod) =>
-            this.checkedCategories.find(
+            category.find(
               (title) =>
-                title.toLowerCase() === prod.category.split('_').join(' ')
+                title.toLowerCase() === prod.category.split("_").join(" ")
             )
           );
         }
-        if (this.checkedBrands.length) {
+        if (brand.length) {
           brandProducts = products.filter((prod) =>
-            this.checkedBrands.find(
-              (title) => title.toLowerCase() === prod.brand.split('_').join(' ')
+            brand.find(
+              (title) => title.toLowerCase() === prod.brand.split("_").join(" ")
             )
           );
         }
@@ -165,31 +80,45 @@ export default {
             });
             return products.length;
           });
-        } else if (categoryProducts.length && !this.checkedBrands.length) {
+        } else if (categoryProducts.length && !brand.length) {
           filteredProducts = categoryProducts.slice();
-        } else if (brandProducts.length && !this.checkedCategories.length) {
+        } else if (brandProducts.length && !category.length) {
           filteredProducts = brandProducts.slice();
         }
       }
-      if (!!this.search) {
+      if (!!search) {
         filteredProducts = filteredProducts.filter((prod) =>
-          prod.title.toLowerCase().includes(this.search)
+          prod.title.toLowerCase().includes(search)
         );
       }
-      if (this.filteredPrice.length) {
+      if (price.length) {
         filteredProducts = filteredProducts.filter(
-          (prod) =>
-            prod.price >= this.filteredPrice[0] &&
-            prod.price <= this.filteredPrice[1]
+          (prod) => prod.price >= price[0] && prod.price <= price[1]
         );
       }
-      return filteredProducts;
-    },
-    changeCurrentPage: function (data) {
-      this.currentPage = data;
-    },
+      const totalPages = Math.ceil(filteredProducts.length / pageSize);
+
+      let result = filteredProducts.slice();
+      result = result.splice(currentPage.value * pageSize - pageSize, pageSize);
+
+      store.dispatch("updateTotalPages", totalPages);
+      store.dispatch("actionUpdateProductsCount", filteredProducts.length);
+
+      return result;
+    }
+
+    function getProductsToShow() {
+      return result;
+    }
+
+    return {
+      allProducts,
+      filteredProducts,
+      productsCount,
+      productsToShow,
+    };
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>

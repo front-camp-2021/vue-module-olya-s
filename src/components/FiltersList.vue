@@ -16,8 +16,6 @@
             <double-slider
               :price="price"
               :title="'Price'"
-              :trigger="trigger"
-              @filtering="setFilter"
             />
           </div>
           <hr>
@@ -25,8 +23,6 @@
             <filter-group
               :filters="categories"
               :title="'Category'"
-              :trigger="trigger"
-              @filtering="setFilter"
             />
           </div>
           <hr>
@@ -34,12 +30,11 @@
             <filter-group
               :filters="brands"
               :title="'Brand'"
-              :trigger="trigger"
-              @filtering="setFilter"
             />
           </div>
         </div>
       </div>
+      {{ filtrs }}
       <clear-button
         :content="content"
         @click="clearAllFilters"
@@ -54,36 +49,35 @@
 </template>
 
 <script>
-import ClearButton from './ClearButton.vue';
-import DoubleSlider from './DoubleSlider.vue';
-import FilterGroup from './FilterGroup.vue';
+import ClearButton from "./ClearButton.vue";
+import DoubleSlider from "./DoubleSlider.vue";
+import FilterGroup from "./FilterGroup.vue";
+import { defineComponent, computed } from "vue";
+import { useStore } from "vuex";
 
-export default {
-  name: 'FiltersList',
+export default defineComponent({
+  name: "FiltersList",
   components: { DoubleSlider, FilterGroup, ClearButton },
-  props: {
-    price: { type: Object, default: () => {} },
-    categories: { type: Array, default: () => [] },
-    brands: { type: Array, default: () => [] },
+  setup() {
+    const store = useStore();
+
+    const price = computed(() => store.getters.price);
+    const categories = computed(() => store.getters.categories);
+    const brands = computed(() => store.getters.brands);
+
+    const content = "Clear all filters";
+
+    function clearAllFilters() {
+      store.dispatch("updateFilters");
+    }
+    return { price, categories, brands, content, clearAllFilters };
   },
-  data: function () {
-    return { content: "Clear all filters", trigger: false };
-  },
-  methods: {
-    clearAllFilters: function () {
-      this.trigger = !this.trigger;
-      this.$emit('filtering');
-    },
-    setFilter: function (data) {
-      this.$emit('filtering', data);
-    },
-  },
-};
+});
 </script>
 
 <style lang="scss" scoped>
-@import '../assets/styles/vars';
-@import '../assets/styles/mixins';
+@import "../assets/styles/vars";
+@import "../assets/styles/mixins";
 
 .filter-form {
   display: none;

@@ -10,23 +10,23 @@
       <div class="card__body">
         <div>
           <span :class="product.rating ? 'card__rating' : 'visually-hidden'">
-            {{ rating }}
+            {{ product.rating }}
             <img
               src="../assets/images/star.svg"
               alt="star icon"
             >
           </span>
-          <span class="card__price">{{ price }}</span>
+          <span class="card__price">{{ product.price }}</span>
         </div>
         <h4 class="card__title">
-          {{ title }}
+          {{ product.title }}
         </h4>
       </div>
     </div>
     <div class="card__footer">
       <button
         class="card__button card__button_wishlist"
-        @click="setWishlist"
+        @click="updateWishlist"
       >
         <img
           :src="wishlistIcon"
@@ -36,7 +36,7 @@
       </button>
       <button
         class="card__button card__button_cart"
-        @click="setCart"
+        @click="updateQuantity"
       >
         <img
           src="../assets/images/shopping-bag.svg"
@@ -49,50 +49,55 @@
 </template>
 
 <script>
-export default {
+import { useStore } from "vuex";
+import { defineComponent, computed } from "vue";
+
+export default defineComponent({
   name: "Card",
   props: {
     product: { type: Object, default: () => {} },
   },
+  setup(props) {
+    const store = useStore();
 
-  data: function () {
-    let { id, title, rating, price } = this.product;
-    return { id, title, rating, price, inWishlist: false, quantity: 0 };
-  },
-
-  computed: {
-    wishlistIcon: function () {
-      if (!this.inWishlist) {
+    const id = props.product.id;
+    const quantity = computed(() => props.product.quantity);
+    const inWishlist = computed(() => props.product.inWishlist);
+    const wishlistIcon = computed(() => {
+      if (!inWishlist.value) {
         return require("../assets/images/heart.svg");
       } else {
         return require(`../assets/images/heart_2.svg`);
       }
-    },
-    quantityCounter: function () {
-      if (this.quantity) {
-        return ` (${this.quantity})`;
+    });
+    const quantityCounter = computed(() => {
+      if (quantity.value) {
+        return ` (${quantity.value})`;
       }
       return "";
-    },
-  },
+    });
 
-  methods: {
-    goTo: function () {
+    function goTo() {
       console.log("GOTO");
-    },
-    setWishlist: function () {
-      this.inWishlist = !this.inWishlist;
-      this.$emit("wishlist", this.id);
-    },
-    setCart: function () {
-      this.quantity++;
-      this.$emit("cart", this.id);
-    },
+    }
+    function updateWishlist() {
+      store.commit("updateWishlist", id);
+    }
+    function updateQuantity() {
+      store.commit("updateQuantity", id);
+    }
+
+    return {
+      wishlistIcon,
+      quantityCounter,
+      goTo,
+      updateWishlist,
+      updateQuantity,
+    };
   },
-};
+});
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 @import "../assets/styles/vars";
 @import "../assets/styles/mixins";
@@ -102,7 +107,7 @@ export default {
   align-items: end;
   width: 100%;
   min-width: 300px;
-  height: 100%;
+  height: 520px;
   @include text-format(400, 0.9rem);
   background: $white;
   box-shadow: $box-shadow;
@@ -120,7 +125,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 337px;
+    height: 300px;
 
     img {
       max-width: 70%;
