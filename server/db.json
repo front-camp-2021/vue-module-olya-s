@@ -1171,5 +1171,13 @@
         "MSI",
         "BenQ",
         "A4Tech"
-    ]
+    ],
+    "price": {
+      "min": 50,
+      "max": 100000,
+      "selected": {
+        "from": 50,
+        "to": 100000
+      }
+    }
 }
